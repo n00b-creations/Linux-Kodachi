@@ -20,20 +20,20 @@ fi
 
 . /etc/os-release
 
-# Phase 1 is intentionally conservative. We require Debian-family hosts and
-# only label the host as Kodachi when its release metadata identifies it.
 if [[ "${ID_LIKE:-}" != *debian* && "${ID:-}" != "debian" && "${ID:-}" != "kodachi" ]]; then
   echo "CYBER-OS Phase 1 requires a Debian-family host; refusing to modify the system." >&2
   exit 1
 fi
 
-install -d -m 0755 "$PREFIX" "$PREFIX/backend" "$PREFIX/config" "$PREFIX/integrations" "$PREFIX/plugins"
+install -d -m 0755 "$PREFIX" "$PREFIX/backend" "$PREFIX/config" "$PREFIX/integrations" "$PREFIX/plugins" "$PREFIX/scripts"
 install -d -m 0755 "$CONFIG" "$STATE" "$LOG"
 
 cp -a "$SOURCE_ROOT/backend/." "$PREFIX/backend/"
 cp -a "$SOURCE_ROOT/config/." "$PREFIX/config/"
 cp -a "$SOURCE_ROOT/integrations/." "$PREFIX/integrations/"
 cp -a "$SOURCE_ROOT/plugins/." "$PREFIX/plugins/"
+cp -a "$SOURCE_ROOT/scripts/cyber-os-api.sh" "$PREFIX/scripts/"
+chmod 0755 "$PREFIX/scripts/cyber-os-api.sh"
 
 cat > "$CONFIG/runtime.env" <<EOF
 CYBER_OS_CONFIG_ROOT=$CONFIG
@@ -46,7 +46,7 @@ cat > "$DESKTOP" <<EOF
 [Desktop Entry]
 Name=CYBER-OS
 Comment=Kodachi Cyber Operations Overlay
-Exec=python3 $PREFIX/backend/cyber_os_api.py
+Exec=$PREFIX/scripts/cyber-os-api.sh
 Terminal=true
 Type=Application
 Categories=Security;System;
