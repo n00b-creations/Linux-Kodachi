@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "apiBase": "http://127.0.0.1:8787",
+  "apiBase": "http://127.0.0.1:8765",
   "routes": [
     {"id": "health", "method": "GET", "path": "/health"},
     {"id": "system", "method": "GET", "path": "/system"},
