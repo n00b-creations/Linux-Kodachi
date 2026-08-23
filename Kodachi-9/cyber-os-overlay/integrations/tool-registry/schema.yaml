@@ -1,0 +1,50 @@
+version: 1
+name: cyber-os-tool-registry
+
+# Metadata only. The registry never copies or replaces executables.
+tool:
+  required:
+    - id
+    - name
+    - executable
+    - source
+    - category
+  optional:
+    - description
+    - desktop_entry
+    - workspaces
+    - tags
+    - requires
+    - risk_class
+    - enabled
+
+sources:
+  - kodachi
+  - blackarch
+  - kali
+  - custom
+
+workspaces:
+  - home
+  - security
+  - red-team
+  - blue-team
+  - purple-team
+  - osint
+  - dfir
+  - ai
+  - labs
+  - reports
+  - settings
+
+risk_classes:
+  - informational
+  - administrative
+  - authorized-assessment
+  - laboratory
+
+principles:
+  - preserve-source-ownership
+  - discover-before-register
+  - no-arbitrary-command-execution
+  - explicit-user-launch
