@@ -1,0 +1,20 @@
+source: kodachi
+version: 1
+
+tools:
+  - id: terminal
+    name: Terminal
+    executable: xfce4-terminal
+    categories: [system]
+  - id: network-manager
+    name: Network Manager
+    executable: nmcli
+    categories: [network, system]
+  - id: curl
+    name: curl
+    executable: curl
+    categories: [network]
+  - id: git
+    name: Git
+    executable: git
+    categories: [development]
