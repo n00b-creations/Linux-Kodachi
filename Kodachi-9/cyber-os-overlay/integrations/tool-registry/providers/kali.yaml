@@ -1,0 +1,11 @@
+version: 1
+provider:
+  id: kali
+  name: Kali Linux
+  type: package-discovery
+  enabled: false
+  mode: metadata-only
+
+# Phase 1 does not install or execute Kali packages.
+# Future entries must describe tools already present on the host or an isolated lab.
+tools: []
