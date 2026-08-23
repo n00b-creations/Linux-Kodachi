@@ -1,0 +1,47 @@
+version: 1
+provider:
+  id: kodachi
+  name: Kodachi
+  type: host-discovery
+  enabled: true
+
+tools:
+  - id: git
+    name: Git
+    executable: git
+    source: kodachi
+    category: development
+    description: Version-control client available on the host.
+    workspaces: [home, security]
+    risk_class: informational
+    enabled: true
+
+  - id: curl
+    name: cURL
+    executable: curl
+    source: kodachi
+    category: networking
+    description: Command-line network transfer utility.
+    workspaces: [security, blue-team, osint]
+    risk_class: administrative
+    enabled: true
+
+  - id: nmcli
+    name: NetworkManager CLI
+    executable: nmcli
+    source: kodachi
+    category: networking
+    description: NetworkManager command-line interface.
+    workspaces: [security, blue-team, labs]
+    risk_class: administrative
+    enabled: true
+
+  - id: xfce4-terminal
+    name: XFCE Terminal
+    executable: xfce4-terminal
+    source: kodachi
+    category: terminal
+    description: Host terminal application.
+    workspaces: [home, security, red-team, blue-team, purple-team, dfir, labs]
+    risk_class: administrative
+    enabled: true
