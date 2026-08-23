@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "apiBase": "http://127.0.0.1:8787",
+  "routes": [
+    {"id": "health", "method": "GET", "path": "/health"},
+    {"id": "system", "method": "GET", "path": "/system"},
+    {"id": "tools", "method": "GET", "path": "/tools"}
+  ],
+  "principles": [
+    "localhost-first",
+    "read-only discovery in Phase 1",
+    "no direct shell execution from the UI",
+    "workspace state remains separate from Kodachi-owned configuration"
+  ]
+}
