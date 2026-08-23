@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "workspaces": [
+    {"id": "home", "label": "Home", "icon": "home"},
+    {"id": "security", "label": "Security", "icon": "shield"},
+    {"id": "red-team", "label": "Red Team", "icon": "target"},
+    {"id": "blue-team", "label": "Blue Team", "icon": "defense"},
+    {"id": "purple-team", "label": "Purple Team", "icon": "layers"},
+    {"id": "osint", "label": "OSINT", "icon": "search"},
+    {"id": "dfir", "label": "DFIR", "icon": "forensics"},
+    {"id": "ai", "label": "AI", "icon": "bot"},
+    {"id": "labs", "label": "Labs", "icon": "flask"},
+    {"id": "reports", "label": "Reports", "icon": "file"},
+    {"id": "settings", "label": "Settings", "icon": "settings"}
+  ]
+}
