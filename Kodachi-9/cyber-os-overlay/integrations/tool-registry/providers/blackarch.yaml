@@ -1,0 +1,11 @@
+version: 1
+provider:
+  id: blackarch
+  name: BlackArch
+  type: package-discovery
+  enabled: false
+  mode: metadata-only
+
+# Populate this provider only from tools actually installed on the host.
+# Phase 1 does not install or execute BlackArch packages.
+tools: []
