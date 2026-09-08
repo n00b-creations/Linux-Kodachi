@@ -1,4 +1,4 @@
-// KDASH app logic: three.js 3D cube + API integration
+// KDASH app logic with GLTF model integration + three.js
 (function(){
   const API_BASE = 'http://127.0.0.1:8765';
   const canvas = document.getElementById('three-canvas');
@@ -25,7 +25,7 @@
   dir.position.set(5,5,5);
   scene.add(dir);
 
-  // Cube with canvas textures for dynamic face labels
+  // Fallback cube (used while model loads or if loading fails)
   function makeFaceTexture(text, colorBG='#071018', colorText='#00d1b2'){
     const size = 512;
     const c = document.createElement('canvas');
@@ -82,7 +82,7 @@
 
   function onResize(){
     const rect = canvas.getBoundingClientRect();
-    const w = rect.width; const h = rect.height;
+    const w = rect.width || window.innerWidth; const h = rect.height || window.innerHeight;
     renderer.setSize(w,h);
     camera.aspect = w/h; camera.updateProjectionMatrix();
   }
@@ -100,6 +100,83 @@
     requestAnimationFrame(animate);
   }
   requestAnimationFrame(animate);
+
+  // Attempt to load a rich GLTF model and replace the cube
+  const MODEL_PATH = 'assets/models/dashboard_model.glb';
+  const REMOTE_FALLBACK = 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Cube/glTF-Binary/Cube.glb';
+
+  function tryLoadModel(){
+    if(typeof THREE.GLTFLoader === 'undefined'){
+      console.warn('GLTFLoader not available; skipping model load');
+      return;
+    }
+    const loader = new THREE.GLTFLoader();
+    // optional: configure DRACO if present
+    try{
+      if(typeof THREE.DRACOLoader !== 'undefined'){
+        const dracoLoader = new THREE.DRACOLoader();
+        // set decoder path to CDN
+        dracoLoader.setDecoderPath('https://unpkg.com/three@0.152.2/examples/js/libs/draco/');
+        loader.setDRACOLoader(dracoLoader);
+      }
+    }catch(e){console.warn('DRACO not configured', e)}
+
+    loader.load(MODEL_PATH, gltf => {
+      console.info('Loaded local model', MODEL_PATH);
+      replaceWithModel(gltf.scene);
+    }, undefined, err => {
+      console.warn('Local model failed, trying remote fallback', err);
+      // try remote
+      loader.load(REMOTE_FALLBACK, gltf => {
+        console.info('Loaded remote model fallback');
+        replaceWithModel(gltf.scene);
+      }, undefined, e2 => {
+        console.warn('Failed to load fallback model', e2);
+        // nothing to do; keep cube
+      });
+    });
+  }
+
+  function replaceWithModel(model){
+    // Remove cube
+    scene.remove(cube);
+    // Basic fit/scale
+    model.position.set(0, -0.5, 0);
+    const bbox = new THREE.Box3().setFromObject(model);
+    const size = bbox.getSize(new THREE.Vector3()).length();
+    const scale = 3.2 / size;
+    model.scale.setScalar(scale * 0.95);
+    scene.add(model);
+    // store model on global for mapping
+    window.kdash_model = model;
+    // attempt to map some named meshes to tool categories
+    mapModelNodesToFaces(model);
+  }
+
+  function mapModelNodesToFaces(model){
+    const names = ['home','system','vcs','network','ui','misc'];
+    // collect mesh nodes
+    const meshes = [];
+    model.traverse(node=>{ if(node.isMesh) meshes.push(node); });
+    // assign first up to 6 meshes
+    for(let i=0;i<Math.min(6, meshes.length); i++){
+      const m = meshes[i];
+      // apply an initial label texture onto the material
+      const label = makeFaceTextureSimple(m.name || names[i]);
+      m.material = new THREE.MeshStandardMaterial({map:label});
+      m.material.needsUpdate = true;
+    }
+  }
+
+  function makeFaceTextureSimple(text){
+    const size = 512; const c = document.createElement('canvas'); c.width = size; c.height = size; const ctx = c.getContext('2d');
+    ctx.fillStyle = '#071018'; ctx.fillRect(0,0,size,size);
+    ctx.fillStyle = '#00d1b2'; ctx.textAlign = 'center'; ctx.font = '36px monospace';
+    ctx.fillText(text, size/2, size/2);
+    return new THREE.CanvasTexture(c);
+  }
+
+  tryLoadModel();
 
   // toggle rotate
   toggleRotateBtn.addEventListener('click', ()=>{autoRotate = !autoRotate; toggleRotateBtn.textContent = autoRotate ? 'Toggle Rotate' : 'Resume Rotate';});
