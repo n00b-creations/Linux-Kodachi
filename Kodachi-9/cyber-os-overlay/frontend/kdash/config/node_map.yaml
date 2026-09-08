@@ -1,0 +1,11 @@
+# Default node -> category mapping for KDASH 3D model
+# Keys are mesh/node names (or name fragments), values are categories used by the dashboard
+# Categories supported: home, system, vcs, network, ui, misc
+
+node_map:
+  home: home
+  system: system
+  vcs: vcs
+  network: network
+  ui: ui
+  misc: misc
