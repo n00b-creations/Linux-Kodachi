@@ -59,9 +59,18 @@
 
   <!-- Three.js core -->
   <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
-  <!-- Loaders & extras for model support -->
+  <!-- Loaders & extras for model support (still use CDN loaders; draco decoder may be local) -->
   <script src="https://unpkg.com/three@0.152.2/examples/js/loaders/GLTFLoader.js"></script>
   <script src="https://unpkg.com/three@0.152.2/examples/js/loaders/DRACOLoader.js"></script>
+
+  <!-- Modal inspector -->
+  <div id="inspectModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose">×</button>
+      <h3 id="modalTitle">Inspect</h3>
+      <div id="modalBody">Select a model part to inspect tools and metadata.</div>
+    </div>
+  </div>
 
   <!-- App logic (loads model/dashboard_model.glb if present) -->
   <script src="app.js"></script>
