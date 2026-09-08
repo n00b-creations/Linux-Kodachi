@@ -1,63 +1,63 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CYBER-OS — K-Dash++</title>
-  <style>
-    :root { color-scheme: dark; font-family: system-ui, sans-serif; }
-    body { margin: 0; background: #0a0f14; color: #dbe7ef; }
-    .app { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
-    aside { border-right: 1px solid #1d2a34; padding: 20px 12px; background: #0d141b; }
-    h1 { font-size: 18px; margin: 0 8px 20px; letter-spacing: .08em; }
-    nav button { width: 100%; text-align: left; border: 0; background: transparent; color: #9fb0bd; padding: 10px 12px; border-radius: 6px; cursor: pointer; }
-    nav button:hover, nav button.active { background: #17232d; color: #fff; }
-    main { padding: 24px; }
-    header { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1d2a34; padding-bottom:16px; }
-    .status { font-size: 13px; color:#7ee787; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:20px; }
-    .card { background:#0f1820; border:1px solid #1d2a34; border-radius:8px; padding:16px; }
-    .muted { color:#81919d; font-size:13px; }
-    .tool { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #18242d; }
-    .ok { color:#7ee787; }
-    .offline { color:#ff7b72; }
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CYBER-OS Dashboard (KDASH)</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="app">
-  <aside>
-    <h1>CYBER-OS</h1>
-    <nav id="nav"></nav>
-  </aside>
-  <main>
+  <div id="app">
     <header>
-      <div><strong id="workspace">Home</strong><div class="muted">Kodachi Cyber Operations Overlay</div></div>
-      <div id="api" class="status">Checking API…</div>
+      <h1>CYBER-OS Dashboard</h1>
+      <div class="controls">
+        <button id="refreshTools">Refresh Tools</button>
+        <button id="toggleAutoRotate">Toggle Rotate</button>
+      </div>
     </header>
-    <section class="grid" id="content"></section>
-  </main>
-</div>
-<script>
-const API = 'http://127.0.0.1:8765';
-const workspaces = [
- ['home','Home'],['security','Security'],['red-team','Red Team'],['blue-team','Blue Team'],
- ['purple-team','Purple Team'],['osint','OSINT'],['dfir','DFIR'],['ai','AI'],['labs','Labs'],['reports','Reports'],['settings','Settings']
-];
-const nav=document.getElementById('nav'); const content=document.getElementById('content'); const title=document.getElementById('workspace');
-function card(title,text,extra=''){ return `<article class="card"><strong>${title}</strong><p class="muted">${text}</p>${extra}</article>`; }
-function render(id,label){
- title.textContent=label; document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.id===id));
- if(id==='home') loadHome(); else content.innerHTML=card(label,'Workspace boundary established. Tool and workflow providers will populate this workspace through the registry.');
-}
-async function loadHome(){
- try {
-  const [health,system,tools]=await Promise.all([fetch(API+'/health').then(r=>r.json()),fetch(API+'/system').then(r=>r.json()),fetch(API+'/tools').then(r=>r.json())]);
-  document.getElementById('api').textContent='API online';
-  content.innerHTML=card('System',`${system.hostname} · ${system.kernel} · ${system.machine}`)+card('CYBER-OS',`Version ${health.version}`,`<span class="ok">● Healthy</span>`)+card('Tool Registry','Discovered host tools',tools.map(t=>`<div class="tool"><span>${t.executable}</span><span class="${t.installed?'ok':'offline'}">${t.installed?'installed':'missing'}</span></div>`).join(''));
- } catch(e){ document.getElementById('api').textContent='API offline'; document.getElementById('api').className='offline'; content.innerHTML=card('CYBER-OS API','The local API is unavailable. Start the overlay service and reload.'); }
-}
-workspaces.forEach(([id,label])=>{const b=document.createElement('button');b.dataset.id=id;b.textContent=label;b.onclick=()=>render(id,label);nav.appendChild(b);});
-render('home','Home');
-</script>
+
+    <main>
+      <section id="visual">
+        <canvas id="three-canvas"></canvas>
+      </section>
+
+      <aside id="panel">
+        <div class="card">
+          <h2>API Status</h2>
+          <div id="apiStatus">Checking...</div>
+          <button id="checkHealth">Check Health</button>
+        </div>
+
+        <div class="card">
+          <h2>Tools</h2>
+          <div class="tools-controls">
+            <label><input type="checkbox" id="showAvailableOnly"> Show available only</label>
+          </div>
+          <ul id="toolList">Loading...</ul>
+        </div>
+
+        <div class="card">
+          <h2>Workspaces</h2>
+          <div class="workspace-list">
+            <button data-ws="home" class="ws active">Home</button>
+            <button data-ws="security" class="ws">Security</button>
+            <button data-ws="redteam" class="ws">Red Team</button>
+            <button data-ws="forensics" class="ws">Forensics</button>
+          </div>
+        </div>
+
+        <div class="card small">
+          <small>Local only: dashboard reads API at <code>http://127.0.0.1:8765</code></small>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      <span>CYBER-OS Overlay — KDASH</span>
+    </footer>
+  </div>
+
+  <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
