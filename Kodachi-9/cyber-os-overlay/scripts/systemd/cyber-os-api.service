@@ -1,0 +1,16 @@
+[Unit]
+Description=CYBER-OS Overlay API
+After=network.target
+
+[Service]
+Type=simple
+# ExecStart should point to the run script installed under /opt/cyber-os/scripts
+ExecStart=/opt/cyber-os/scripts/run-cyber-os.sh
+Restart=on-failure
+Environment=CYBER_OS_PREFIX=/opt/cyber-os
+Environment=CYBER_OS_BIND_HOST=127.0.0.1
+Environment=CYBER_OS_API_PORT=8765
+Environment=CYBER_OS_LOG_DIR=/var/log/cyber-os
+
+[Install]
+WantedBy=multi-user.target
