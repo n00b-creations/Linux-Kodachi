@@ -1,0 +1,23 @@
+# Kodachi provider tool registry
+
+tools:
+  - id: git
+    name: Git
+    executable: git
+    category: vcs
+    description: Git binary
+  - id: curl
+    name: curl
+    executable: curl
+    category: network
+    description: Command-line HTTP client
+  - id: nmcli
+    name: NetworkManager CLI
+    executable: nmcli
+    category: network
+    description: Network manager utility
+  - id: xfce4-terminal
+    name: XFCE Terminal
+    executable: xfce4-terminal
+    category: ui
+    description: Desktop terminal emulator

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CYBER-OS Dashboard (KDASH)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>CYBER-OS Dashboard</h1>
+      <div class="controls">
+        <button id="refreshTools" aria-label="Refresh tools">Refresh Tools</button>
+        <button id="toggleAutoRotate" aria-pressed="false">Toggle Rotate</button>
+        <button id="openMapping" title="Edit model->category mapping">Edit Mapping</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="visual">
+        <canvas id="three-canvas" role="img" aria-label="3D dashboard visualization"></canvas>
+      </section>
+
+      <aside id="panel" role="complementary">
+        <div class="card">
+          <h2>API Status</h2>
+          <div id="apiStatus">Checking...</div>
+          <button id="checkHealth">Check Health</button>
+        </div>
+
+        <div class="card">
+          <h2>Tools</h2>
+          <div class="tools-controls">
+            <label><input type="checkbox" id="showAvailableOnly"> Show available only</label>
+          </div>
+          <ul id="toolList">Loading...</ul>
+        </div>
+
+        <div class="card">
+          <h2>Workspaces</h2>
+          <div class="workspace-list">
+            <button data-ws="home" class="ws active">Home</button>
+            <button data-ws="security" class="ws">Security</button>
+            <button data-ws="redteam" class="ws">Red Team</button>
+            <button data-ws="forensics" class="ws">Forensics</button>
+          </div>
+        </div>
+
+        <div class="card small">
+          <small>Local only: dashboard reads API at <code>http://127.0.0.1:8765</code></small>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      <span>CYBER-OS Overlay — KDASH</span>
+    </footer>
+  </div>
+
+  <!-- Three.js core -->
+  <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
+  <!-- Loaders & extras for model support -->
+  <script src="https://unpkg.com/three@0.152.2/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://unpkg.com/three@0.152.2/examples/js/loaders/DRACOLoader.js"></script>
+
+  <!-- Inspector modal -->
+  <div id="inspectModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose" aria-label="Close inspector">×</button>
+      <h3 id="modalTitle">Inspect</h3>
+      <div id="modalBody">Select a model part to inspect tools and metadata.</div>
+    </div>
+  </div>
+
+  <!-- Mapping editor modal -->
+  <div id="mappingModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <button class="modal-close" id="mappingClose" aria-label="Close mapping editor">×</button>
+      <h3>Edit model &rarr; category mapping</h3>
+      <p>Each mapping line should be: <code>node_fragment: category</code> (categories: home, system, vcs, network, ui, misc)</p>
+      <textarea id="mappingText" rows="10" style="width:100%"></textarea>
+      <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end">
+        <button id="mappingSave">Download Mapping</button>
+        <button id="mappingApply">Apply Locally</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

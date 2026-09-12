@@ -1,0 +1,30 @@
+version: 0.1.0-alpha
+
+runtime:
+  install_root: /opt/cyber-os
+  config_root: /etc/cyber-os
+  state_root: /var/lib/cyber-os
+  log_root: /var/log/cyber-os
+  bind_host: 127.0.0.1
+  api_port: 8765
+
+platform:
+  expected_distribution: kodachi
+  minimum_major_version: 9
+
+security:
+  allow_remote_api: false
+  require_localhost: true
+  plugin_execution: disabled
+
+features:
+  tool_discovery: true
+  dashboard: true
+  plugins: true
+  ai: false
+  lab_orchestration: false
+
+registries:
+  kodachi: integrations/kodachi/tools.yaml
+  blackarch: integrations/blackarch/tools.yaml
+  kali: integrations/kali/tools.yaml

@@ -1,0 +1,52 @@
+/* KDASH styles (simple, responsive) */
+:root{
+  --bg:#0f1720;
+  --card:#0b1220;
+  --muted:#7f8a99;
+  --accent:#00d1b2;
+  --glass: rgba(255,255,255,0.03);
+}
+html,body,#app{height:100%;}
+body{
+  margin:0;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+  background:linear-gradient(180deg,var(--bg),#071018);
+  color:#e6eef6;
+}
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 18px;
+  border-bottom:1px solid rgba(255,255,255,0.03);
+}
+header h1{margin:0;font-size:1.1rem}
+.controls button{margin-left:8px;padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:var(--glass);color:var(--muted)}
+main{display:flex;height:calc(100% - 100px);}
+#visual{flex:1;display:flex;align-items:center;justify-content:center;padding:20px}
+#panel{width:360px;padding:18px;box-shadow:0 8px 30px rgba(2,6,23,0.6);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));}
+.card{background:rgba(255,255,255,0.02);padding:12px;border-radius:10px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.02)}
+.card h2{margin:0 0 8px 0;font-size:0.95rem}
+.tools-controls{margin-bottom:8px}
+#toolList{list-style:none;padding:0;margin:0;max-height:300px;overflow:auto}
+#toolList li{padding:8px;border-radius:6px;margin-bottom:6px;background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.015));display:flex;justify-content:space-between;align-items:center}
+#toolList li .name{font-weight:600}
+#toolList li .avail{font-size:0.8rem;color:var(--muted)}
+.workspace-list{display:flex;flex-wrap:wrap;gap:8px}
+.workspace-list .ws{padding:8px 10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--muted)}
+.workspace-list .ws.active{background:linear-gradient(90deg,#09323a,#08303a);color:var(--accent);border-color:rgba(0,209,178,0.15)}
+footer{padding:10px 18px;border-top:1px solid rgba(255,255,255,0.02);font-size:0.85rem;color:var(--muted)}
+
+/* canvas fills visual area */
+#three-canvas{width:100%;height:100%;display:block}
+
+/* Modal inspector */
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);visibility:hidden;opacity:0;transition:opacity .18s ease}
+.modal[aria-hidden="false"]{visibility:visible;opacity:1}
+.modal-content{background:var(--card);padding:18px;border-radius:10px;min-width:320px;max-width:640px;color:#eafff6}
+.modal-close{position:absolute;right:18px;top:18px;background:transparent;border:none;color:#fff;font-size:20px}
+
+@media (max-width:900px){
+  main{flex-direction:column}
+  #panel{width:100%}
+}

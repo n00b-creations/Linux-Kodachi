@@ -1,0 +1,17 @@
+id: example
+name: Example Plugin
+version: 0.1.0
+api_version: 1
+vendor: cyber-os
+kind: informational
+
+permissions: []
+
+entrypoint:
+  type: none
+
+ui:
+  tab: Tools
+  icon: null
+
+enabled_by_default: false

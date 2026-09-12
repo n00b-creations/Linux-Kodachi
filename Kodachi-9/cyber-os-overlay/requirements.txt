@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+PyYAML
+psutil
+httpx
+pytest
