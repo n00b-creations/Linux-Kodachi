@@ -1,17 +1,12 @@
-import os
-import pytest
+from pathlib import Path
 
 from backend import tool_registry
 
 
-def test_tool_registry_discover(tmp_path, monkeypatch):
-    # create a fake providers dir
-    pdir = tmp_path / "providers"
-    pdir.mkdir()
-    f = pdir / "prov.yaml"
-    f.write_text("tools:\n  - id: testcmd\n    name: TestCmd\n    executable: echo\n    category: misc\n")
+def test_default_provider_directory_is_inside_overlay():
+    expected = Path(tool_registry.__file__).resolve().parents[1] / "integrations" / "tool-registry" / "providers"
+    assert Path(tool_registry.PROVIDERS_DIR) == expected
+    assert expected.is_dir()
 
-    tr = tool_registry.ToolRegistry(providers_dir=str(pdir))
-    results = tr.discover()
-    assert isinstance(results, list)
-    assert any(r.get('id') == 'testcmd' for r in results)
+    registry = tool_registry.ToolRegistry()
+    assert "git" in {tool["id"] for tool in registry.discover()} 
