@@ -5,8 +5,10 @@ PREFIX="${CYBER_OS_PREFIX:-/opt/cyber-os}"
 HOST="${CYBER_OS_BIND_HOST:-127.0.0.1}"
 PORT="${CYBER_OS_API_PORT:-8765}"
 
-exec python3 -m uvicorn cyber_os_api:app \
-  --app-dir "$PREFIX/backend" \
+# Keep imports package-qualified so the API's relative imports work.
+export CYBER_OS_PREFIX="$PREFIX"
+exec python3 -m uvicorn backend.cyber_os_api:app \
+  --app-dir "$PREFIX" \
   --host "$HOST" \
   --port "$PORT" \
   --no-server-header

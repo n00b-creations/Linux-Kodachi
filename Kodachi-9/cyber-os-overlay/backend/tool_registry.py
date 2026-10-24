@@ -6,10 +6,11 @@ Each provider lists tools with fields: id, name, executable, category, descripti
 import os
 import yaml
 import shutil
+from pathlib import Path
 from typing import List, Dict
 
-ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-PROVIDERS_DIR = os.path.join(ROOT, "integrations", "tool-registry", "providers")
+ROOT = Path(__file__).resolve().parents[1]
+PROVIDERS_DIR = ROOT / "integrations" / "tool-registry" / "providers"
 
 
 class ToolRegistry:
@@ -31,8 +32,7 @@ class ToolRegistry:
                 self.providers[fname] = data
 
     def discover(self) -> List[Dict]:
-        """Return list of tools with availability info (executable exists)
-        """
+        """Return list of tools with availability info (executable exists)."""
         results = []
         for fname, pdata in self.providers.items():
             tools = pdata.get("tools", [])

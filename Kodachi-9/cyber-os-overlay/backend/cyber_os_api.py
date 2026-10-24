@@ -23,7 +23,16 @@ from .tool_registry import ToolRegistry
 
 # Configuration from env
 PREFIX = os.environ.get("CYBER_OS_PREFIX", "/opt/cyber-os")
-LOG_DIR = os.environ.get("CYBER_OS_LOG_DIR", "/var/log/cyber-os")
+DEFAULT_LOG_DIR = (
+    "/var/log/cyber-os"
+    if os.geteuid() == 0
+    else os.path.join(
+        os.environ.get("XDG_STATE_HOME", os.path.expanduser("~/.local/state")),
+        "cyber-os",
+        "log",
+    )
+)
+LOG_DIR = os.environ.get("CYBER_OS_LOG_DIR", DEFAULT_LOG_DIR)
 BIND_HOST = os.environ.get("CYBER_OS_BIND_HOST", "127.0.0.1")
 API_PORT = int(os.environ.get("CYBER_OS_API_PORT", "8765"))
 
