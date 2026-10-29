@@ -12,6 +12,16 @@
   const modalClose = document.getElementById('modalClose');
   const modalTitle = document.getElementById('modalTitle');
   const modalBody = document.getElementById('modalBody');
+  const openMappingBtn = document.getElementById('openMapping');
+  const mappingModal = document.getElementById('mappingModal');
+  const mappingClose = document.getElementById('mappingClose');
+  const mappingText = document.getElementById('mappingText');
+  const mappingSave = document.getElementById('mappingSave');
+  const mappingApply = document.getElementById('mappingApply');
+
+  let nodeMap = {};
+  const mappingMaterialCache = new WeakMap();
+  const originalMaterialStyles = new WeakMap();
 
   let autoRotate = true;
   let lastTools = [];
@@ -129,18 +139,128 @@
     while(node && !node.name && node.parent) node = node.parent;
     const name = node && node.name ? node.name : mesh.name || 'unknown';
     // map name to category heuristics
-    const category = guessCategoryFromName(name);
+    const category = mappedCategory(name) || guessCategoryFromName(name);
     showInspector(name, category);
   }
 
   function guessCategoryFromName(name){
-    const n = name.toLowerCase();
+    const n = String(name || '').toLowerCase();
     if(n.includes('home')) return 'home';
     if(n.includes('sys') || n.includes('system')) return 'system';
     if(n.includes('git') || n.includes('vcs')) return 'vcs';
     if(n.includes('net') || n.includes('router') || n.includes('network')) return 'network';
     if(n.includes('ui') || n.includes('dashboard') || n.includes('screen')) return 'ui';
     return 'misc';
+  }
+
+  function mappedCategory(name){
+    if(!window.KdashMapping) return null;
+    return window.KdashMapping.categoryForNode(name, nodeMap);
+  }
+
+  function categoryColor(category){
+    switch(category){
+      case 'home': return {fill:0x0b2f2a, emissive:0x003827};
+      case 'system': return {fill:0x22120b, emissive:0x4a220a};
+      case 'vcs': return {fill:0x071a2f, emissive:0x002a66};
+      case 'network': return {fill:0x0b1a2f, emissive:0x002a6a};
+      case 'ui': return {fill:0x08121a, emissive:0x003033};
+      default: return {fill:0x071018, emissive:0x002a22};
+    }
+  }
+
+  function mappingMaterialsFor(mesh){
+    let materials = mappingMaterialCache.get(mesh);
+    if(materials) return materials;
+    const source = mesh.material;
+    materials = Array.isArray(source)
+      ? source.map(function(material){ return material && material.clone ? material.clone() : material; })
+      : [source && source.clone ? source.clone() : source];
+    mappingMaterialCache.set(mesh, materials);
+    mesh.material = Array.isArray(source) ? materials : materials[0];
+    return materials;
+  }
+
+  function rememberAndRestoreMaterial(material){
+    if(!material) return;
+    let original = originalMaterialStyles.get(material);
+    if(!original){
+      original = {
+        color: material.color && material.color.clone ? material.color.clone() : null,
+        emissive: material.emissive && material.emissive.clone ? material.emissive.clone() : null,
+        emissiveIntensity: material.emissiveIntensity
+      };
+      originalMaterialStyles.set(material, original);
+      return;
+    }
+    if(original.color && material.color) material.color.copy(original.color);
+    if(original.emissive && material.emissive) material.emissive.copy(original.emissive);
+    if(original.emissiveIntensity !== undefined) material.emissiveIntensity = original.emissiveIntensity;
+  }
+
+  function applyMappingToScene(){
+    if(!window.KdashMapping) return;
+    scene.traverse(function(node){
+      if(!node.isMesh) return;
+      const category = mappedCategory(node.name);
+      const cached = mappingMaterialCache.has(node);
+      if(!category && !cached) return;
+      const materials = mappingMaterialsFor(node);
+      materials.forEach(rememberAndRestoreMaterial);
+      if(!category) return;
+      const categoryTools = lastTools.filter(function(tool){ return (tool.category || 'misc').toLowerCase() === category; });
+      const anyMissing = categoryTools.some(function(tool){ return !tool.available; });
+      const palette = categoryColor(category);
+      materials.forEach(function(material){
+        if(!material) return;
+        if(material.color && material.color.setHex) material.color.setHex(anyMissing ? 0x391010 : palette.fill);
+        if(material.emissive && material.emissive.setHex) material.emissive.setHex(anyMissing ? 0x481010 : palette.emissive);
+        if('emissiveIntensity' in material) material.emissiveIntensity = anyMissing ? 0.6 : 0.16;
+      });
+    });
+  }
+
+  async function loadNodeMap(){
+    if(!window.KdashMapping) return;
+    try{
+      const response = await fetch('config/node_map.yaml', {cache:'no-cache'});
+      if(!response.ok) throw new Error('Mapping file is unavailable.');
+      nodeMap = window.KdashMapping.parseNodeMap(await response.text());
+      mappingText.value = window.KdashMapping.stringifyNodeMap(nodeMap);
+      applyMappingToScene();
+    }catch(error){
+      console.warn('Could not load the default node mapping; starting with an empty mapping.', error);
+      nodeMap = {};
+      mappingText.value = window.KdashMapping.stringifyNodeMap(nodeMap);
+    }
+  }
+
+  function applyMappingFromText(text){
+    try{
+      nodeMap = window.KdashMapping.parseNodeMap(text);
+      mappingText.value = window.KdashMapping.stringifyNodeMap(nodeMap);
+      applyMappingToScene();
+      mappingModal.setAttribute('aria-hidden','true');
+    }catch(error){
+      window.alert('Mapping was not applied: ' + error.message);
+    }
+  }
+
+  function downloadMapping(text){
+    try{
+      const normalized = window.KdashMapping.stringifyNodeMap(window.KdashMapping.parseNodeMap(text));
+      const blob = new Blob([normalized], {type:'text/yaml'});
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = 'node_map.yaml';
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+    }catch(error){
+      window.alert('Mapping was not downloaded: ' + error.message);
+    }
   }
 
   function showInspector(nodeName, category){
@@ -222,6 +342,7 @@
     const scale = 3.2 / size;
     model.scale.setScalar(scale * 0.95);
     scene.add(model);
+    applyMappingToScene();
     // store model on global for mapping
     window.kdash_model = model;
     // make clickable by ensuring meshes cast/receive
@@ -232,6 +353,12 @@
 
   // toggle rotate
   toggleRotateBtn.addEventListener('click', ()=>{autoRotate = !autoRotate; toggleRotateBtn.textContent = autoRotate ? 'Toggle Rotate' : 'Resume Rotate';});
+
+  // Mapping editor controls
+  openMappingBtn.addEventListener('click', ()=>{ mappingModal.setAttribute('aria-hidden','false'); mappingText.focus(); });
+  mappingClose.addEventListener('click', ()=>mappingModal.setAttribute('aria-hidden','true'));
+  mappingApply.addEventListener('click', ()=>applyMappingFromText(mappingText.value));
+  mappingSave.addEventListener('click', ()=>downloadMapping(mappingText.value));
 
   // --- API interactions ---
   async function checkHealth(){
@@ -258,6 +385,7 @@
       const j = await r.json();
       lastTools = j.tools || [];
       renderTools(lastTools);
+      applyMappingToScene();
     }catch(e){
       toolListEl.innerHTML = '<li>Error loading tools — is the API running?</li>';
     }
@@ -283,7 +411,10 @@
   checkHealthBtn.addEventListener('click', ()=>checkHealth());
   showAvailableOnly.addEventListener('change', ()=>fetchTools(false));
 
-  // initial load
-  checkHealth().then(()=>fetchTools(false));
+  // Load the default map before the first tool refresh.
+  loadNodeMap().then(()=>{
+    applyMappingToScene();
+    checkHealth().then(()=>fetchTools(false));
+  });
 
 })();
